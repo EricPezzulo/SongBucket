@@ -1,11 +1,11 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function Home() {
   const songName = useRef<HTMLInputElement>(null);
   const artistName = useRef<HTMLInputElement>(null);
   const className = useRef<HTMLSelectElement>(null);
-
+  const [url_auth, set_url_auth] = useState<null | string>(null);
   const submitSongData = async () => {
     console.log(
       songName.current?.value,
@@ -24,11 +24,35 @@ export default function Home() {
       }),
     });
   };
+
+  const searchSpotifyAPI = async () => {
+    const parsedSongName = songName.current?.value.replace(/ /g, "%20%");
+    const res = await fetch(
+      `https://api.spotify.com/v1/search?q=${parsedSongName}
+`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+    const data = await res.json();
+    console.log(data);
+  };
+
+  const getReq = async () => {
+    const res = await fetch("/api", {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await res.json();
+    set_url_auth(data);
+  };
+  // console.log(url_auth)
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
         <div>
-          <h1 className="font-medium text-3xl">Playlist Center</h1>
+          <h1 className="font-medium text-3xl">SongBucket</h1>
         </div>
         <p>
           Enter a song and artist name that you would like to be played in
@@ -62,7 +86,8 @@ export default function Home() {
         </div>
         <div>
           <button
-            onClick={submitSongData}
+            // onClick={searchSpotifyAPI}
+            onClick={getReq}
             className="rounded bg-white p-3 hover:bg-slate-100 duration-100"
             type="button"
           >
